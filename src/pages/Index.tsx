@@ -1,14 +1,25 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useEffect } from "react";
+import { CVWizard } from "@/components/CVWizard/CVWizard";
+import { ApiKeySetup } from "@/components/CVWizard/ApiKeySetup";
+import { openaiService } from "@/services/openaiService";
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  const [hasApiKey, setHasApiKey] = useState(false);
+
+  useEffect(() => {
+    openaiService.initialize();
+    setHasApiKey(openaiService.hasApiKey());
+  }, []);
+
+  const handleApiKeyComplete = () => {
+    setHasApiKey(true);
+  };
+
+  if (!hasApiKey) {
+    return <ApiKeySetup onComplete={handleApiKeyComplete} />;
+  }
+
+  return <CVWizard />;
 };
 
 export default Index;
