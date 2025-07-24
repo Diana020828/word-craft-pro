@@ -13,6 +13,7 @@ export interface WorkExperience {
   position: string;
   startDate: string;
   endDate: string;
+  isCurrent: boolean;
   description: string;
   improvedDescription?: string;
 }
@@ -23,6 +24,7 @@ export interface Education {
   degree: string;
   startDate: string;
   endDate: string;
+  isCurrent: boolean;
 }
 
 export interface Skills {

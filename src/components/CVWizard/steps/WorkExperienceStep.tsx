@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Trash2, Briefcase } from 'lucide-react';
 import { WorkExperience } from '@/types/cv';
 
@@ -40,6 +41,7 @@ export const WorkExperienceStep = ({
       position: '',
       startDate: '',
       endDate: '',
+      isCurrent: false,
       description: '',
     };
   }
@@ -54,15 +56,27 @@ export const WorkExperienceStep = ({
     }
   };
 
-  const updateExperience = (id: string, field: keyof WorkExperience, value: string) => {
-    setExperiences(experiences.map(exp =>
-      exp.id === id ? { ...exp, [field]: value } : exp
-    ));
+  const updateExperience = (id: string, field: keyof WorkExperience, value: string | boolean) => {
+    setExperiences(experiences.map(exp => {
+      if (exp.id === id) {
+        const updated = { ...exp, [field]: value };
+        // Si se marca como actual, limpiar la fecha de fin
+        if (field === 'isCurrent' && value === true) {
+          updated.endDate = '';
+        }
+        return updated;
+      }
+      return exp;
+    }));
   };
 
   const isValid = () => {
     return experiences.every(exp =>
-      exp.company.trim() && exp.position.trim() && exp.startDate && exp.endDate && exp.description.trim()
+      exp.company.trim() && 
+      exp.position.trim() && 
+      exp.startDate && 
+      (exp.isCurrent || exp.endDate) && 
+      exp.description.trim()
     );
   };
 
@@ -136,8 +150,21 @@ export const WorkExperienceStep = ({
                     type="month"
                     value={experience.endDate}
                     onChange={(e) => updateExperience(experience.id, 'endDate', e.target.value)}
+                    disabled={experience.isCurrent}
+                    placeholder={experience.isCurrent ? "Presente" : ""}
                   />
                 </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id={`current-${experience.id}`}
+                  checked={experience.isCurrent}
+                  onCheckedChange={(checked) => updateExperience(experience.id, 'isCurrent', checked === true)}
+                />
+                <Label htmlFor={`current-${experience.id}`} className="text-sm font-normal">
+                  Actualmente trabajo aquí
+                </Label>
               </div>
 
               <div>

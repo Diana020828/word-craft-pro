@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Trash2, GraduationCap } from 'lucide-react';
 import { Education } from '@/types/cv';
 
@@ -39,6 +40,7 @@ export const EducationStep = ({
       degree: '',
       startDate: '',
       endDate: '',
+      isCurrent: false,
     };
   }
 
@@ -52,15 +54,26 @@ export const EducationStep = ({
     }
   };
 
-  const updateEducation = (id: string, field: keyof Education, value: string) => {
-    setEducation(education.map(edu =>
-      edu.id === id ? { ...edu, [field]: value } : edu
-    ));
+  const updateEducation = (id: string, field: keyof Education, value: string | boolean) => {
+    setEducation(education.map(edu => {
+      if (edu.id === id) {
+        const updated = { ...edu, [field]: value };
+        // Si se marca como actual, limpiar la fecha de fin
+        if (field === 'isCurrent' && value === true) {
+          updated.endDate = '';
+        }
+        return updated;
+      }
+      return edu;
+    }));
   };
 
   const isValid = () => {
     return education.every(edu =>
-      edu.institution.trim() && edu.degree.trim() && edu.startDate && edu.endDate
+      edu.institution.trim() && 
+      edu.degree.trim() && 
+      edu.startDate && 
+      (edu.isCurrent || edu.endDate)
     );
   };
 
@@ -133,8 +146,21 @@ export const EducationStep = ({
                     type="month"
                     value={edu.endDate}
                     onChange={(e) => updateEducation(edu.id, 'endDate', e.target.value)}
+                    disabled={edu.isCurrent}
+                    placeholder={edu.isCurrent ? "Presente" : ""}
                   />
                 </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id={`current-${edu.id}`}
+                  checked={edu.isCurrent}
+                  onCheckedChange={(checked) => updateEducation(edu.id, 'isCurrent', checked === true)}
+                />
+                <Label htmlFor={`current-${edu.id}`} className="text-sm font-normal">
+                  Actualmente estudio aquí
+                </Label>
               </div>
             </CardContent>
           </Card>
